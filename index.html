@@ -162,7 +162,123 @@ document.getElementById('clear').onclick=()=>{
   ctx.clearRect(0,0,canvas.width,canvas.height); hasSignature=false;
 };
 function loadVisaRules() {
+
   fillCountries();
+
+  const visaCountries = [
+    'AFGHANISTAN',
+    'ALGERIA',
+    'ANGOLA',
+    'ARMENIA',
+    'AZERBAIJAN',
+    'BAHRAIN',
+    'BANGLADESH',
+    'BELARUS',
+    'BELIZE',
+    'BENIN',
+    'BHUTAN',
+    'BOLIVIA',
+    'BOTSWANA',
+    'BURKINA FASO',
+    'BURMA/MYANMAR',
+    'BURUNDI',
+    'CAMBODIA',
+    'CAMEROON',
+    'CAPE VERDE',
+    'CENTRAL AFRICAN REPUBLIC',
+    'CHAD',
+    'CHINA',
+    'COMOROS',
+    'CONGO',
+    "COTE D'IVOIRE",
+    'CUBA',
+    'DEMOCRATIC REPUBLIC OF CONGO',
+    'DJIBOUTI',
+    'DOMINICAN REPUBLIC',
+    'ECUADOR',
+    'EGYPT',
+    'EQUATORIAL GUINEA',
+    'ERITREA',
+    'ETHIOPIA',
+    'FIJI',
+    'GABON',
+    'GAMBIA',
+    'GHANA',
+    'GUINEA',
+    'GUINEA-BISSAU',
+    'GUYANA',
+    'HAITI',
+    'INDIA',
+    'INDONESIA',
+    'IRAN',
+    'IRAQ',
+    'JAMAICA',
+    'JORDAN',
+    'KAZAKHSTAN',
+    'KENYA',
+    'KUWAIT',
+    'KYRGYZSTAN',
+    'LAOS',
+    'LEBANON',
+    'LESOTHO',
+    'LIBERIA',
+    'LIBYA',
+    'MADAGASCAR',
+    'MALAWI',
+    'MALDIVES',
+    'MALI',
+    'MAURITANIA',
+    'MONGOLIA',
+    'MOROCCO',
+    'MOZAMBIQUE',
+    'NAMIBIA',
+    'NAURU',
+    'NEPAL',
+    'NIGER',
+    'NIGERIA',
+    'NORTH KOREA',
+    'OMAN',
+    'PAKISTAN',
+    'PAPUA NEW GUINEA',
+    'PHILIPPINES',
+    'QATAR',
+    'RUSSIA',
+    'RWANDA',
+    'SAO TOME AND PRINCIPE',
+    'SAUDI ARABIA',
+    'SENEGAL',
+    'SIERRA LEONE',
+    'SOMALIA',
+    'SOUTH AFRICA',
+    'SOUTH SUDAN',
+    'SRI LANKA',
+    'SUDAN',
+    'SURINAME',
+    'SWAZILAND',
+    'SYRIA',
+    'TAJIKISTAN',
+    'TANZANIA',
+    'THAILAND',
+    'TOGO',
+    'TUNISIA',
+    'TURKEY',
+    'TURKMENISTAN',
+    'UGANDA',
+    'UZBEKISTAN',
+    'VIETNAM',
+    'YEMEN',
+    'ZAMBIA',
+    'ZIMBABWE',
+    'KOSOVO',
+    'PALESTINIAN AUTHORITY'
+  ];
+
+  visaRules = {};
+
+  visaCountries.forEach(function(country){
+    visaRules[country] = true;
+  });
+
 }
 
 function fillCountries() {
@@ -195,6 +311,7 @@ function fillCountries() {
     "Cambodia",
     "Cameroon",
     "Canada",
+    "Cape Verde",
     "China",
     "Czech Republic",
     "Denmark",
@@ -209,19 +326,24 @@ function fillCountries() {
     "Japan",
     "Jordan",
     "Kenya",
+    "Kosovo",
     "Kuwait",
     "Lebanon",
     "Libya",
     "Morocco",
+    "Myanmar",
     "Nepal",
     "Nigeria",
     "Pakistan",
+    "Palestinian Authority",
     "Philippines",
     "Poland",
     "Qatar",
     "Russia",
     "Saudi Arabia",
+    "Sao Tome and Principe",
     "South Africa",
+    "South Sudan",
     "Spain",
     "Sri Lanka",
     "Sweden",
@@ -231,6 +353,7 @@ function fillCountries() {
     "Turkey",
     "Ukraine",
     "United Kingdom",
+    "United Arab Emirates",
     "United States",
     "Vietnam",
     "Yemen",
@@ -268,18 +391,18 @@ document.getElementById('nationality').addEventListener('change', function(e) {
 
   const country = e.target.value.toUpperCase().trim();
 
-  const required = visaRules[country] === true;
+  const visaRequired = visaRules[country] === true;
 
   document.getElementById('visaBox').style.display =
-    required ? 'block' : 'none';
+      visaRequired ? 'block' : 'none';
 
   document.getElementById('visaRequiredNote').style.display =
-    required ? 'block' : 'none';
+      visaRequired ? 'block' : 'none';
 
-  document.getElementById('visa').required = required;
+  document.getElementById('visa').required = visaRequired;
 
-  if (!required) {
-    document.getElementById('visa').value = '';
+  if (!visaRequired) {
+      document.getElementById('visa').value = '';
   }
 
 });
