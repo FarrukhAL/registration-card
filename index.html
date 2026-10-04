@@ -210,122 +210,61 @@ function fillCountries() {
     "Cambodia",
     "Cameroon",
     "Canada",
-    "Cape Verde",
-    "Central African Republic",
-    "Chad",
     "China",
-    "Colombia",
-    "Comoros",
-    "Congo",
-    "Costa Rica",
-    "Croatia",
-    "Cuba",
-    "Cyprus",
     "Czech Republic",
     "Denmark",
-    "Dominican Republic",
-    "Ecuador",
     "Egypt",
-    "Estonia",
-    "Ethiopia",
-    "Finland",
     "France",
     "Germany",
-    "Ghana",
-    "Greece",
-    "Hungary",
-    "Iceland",
     "India",
     "Indonesia",
     "Iran",
     "Iraq",
-    "Ireland",
-    "Israel",
     "Italy",
-    "Jamaica",
     "Japan",
     "Jordan",
-    "Kazakhstan",
     "Kenya",
     "Kuwait",
-    "Kyrgyzstan",
-    "Laos",
-    "Latvia",
     "Lebanon",
-    "Lesotho",
-    "Liberia",
     "Libya",
-    "Lithuania",
-    "Luxembourg",
-    "Madagascar",
-    "Malawi",
-    "Malaysia",
-    "Maldives",
-    "Mali",
-    "Malta",
-    "Mauritania",
-    "Mexico",
-    "Moldova",
-    "Mongolia",
-    "Montenegro",
     "Morocco",
-    "Mozambique",
-    "Myanmar",
-    "Namibia",
     "Nepal",
-    "Netherlands",
-    "New Zealand",
-    "Niger",
     "Nigeria",
-    "North Korea",
-    "Norway",
-    "Oman",
     "Pakistan",
-    "Papua New Guinea",
     "Philippines",
     "Poland",
-    "Portugal",
     "Qatar",
-    "Romania",
     "Russia",
-    "Rwanda",
     "Saudi Arabia",
-    "Senegal",
-    "Serbia",
-    "Singapore",
-    "Slovakia",
-    "Slovenia",
-    "Somalia",
     "South Africa",
-    "South Korea",
     "Spain",
     "Sri Lanka",
-    "Sudan",
     "Sweden",
     "Switzerland",
     "Syria",
-    "Tajikistan",
-    "Tanzania",
     "Thailand",
-    "Tunisia",
     "Turkey",
-    "Turkmenistan",
-    "Uganda",
     "Ukraine",
-    "United Arab Emirates",
     "United Kingdom",
     "United States",
-    "Uzbekistan",
     "Vietnam",
     "Yemen",
-    "Zambia",
     "Zimbabwe"
   ];
 
   const sel = document.getElementById("nationality");
 
-  sel.innerHTML =
-    '<option value="">Select nationality</option>';
+  if (!sel) {
+    console.error("Nationality dropdown not found");
+    return;
+  }
+
+  sel.innerHTML = '';
+
+  const first = document.createElement("option");
+  first.value = "";
+  first.textContent = "Select nationality";
+  sel.appendChild(first);
 
   countries.sort().forEach(country => {
 
@@ -337,6 +276,8 @@ function fillCountries() {
     sel.appendChild(option);
 
   });
+
+  console.log("Countries loaded:", countries.length);
 }
 document.getElementById('nationality').addEventListener('change', function(e) {
 
