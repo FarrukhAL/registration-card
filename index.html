@@ -161,13 +161,23 @@ canvas.addEventListener('pointercancel',end);
 document.getElementById('clear').onclick=()=>{
   ctx.clearRect(0,0,canvas.width,canvas.height); hasSignature=false;
 };
-
 function loadVisaRules() {
-  google.script.run.withSuccessHandler(rules => {
-    visaRules = rules || {};
-    google.script.run.withSuccessHandler(fillCountries).getVisaRules();
-  }).getVisaRules();
+
+  google.script.run
+    .withSuccessHandler(function(rules) {
+
+      visaRules = {};
+
+      Object.keys(rules).forEach(function(country) {
+        visaRules[country.toUpperCase()] = true;
+      });
+
+      fillCountries(rules);
+
+    })
+    .getVisaRules();
 }
+
 function fillCountries(rules) {
   const sel = document.getElementById('nationality');
   const countries = Object.keys(rules).filter(x => x.length > 2 && !/^[A-Z]{2}$/.test(x)).sort();
@@ -186,14 +196,24 @@ function fillCountries(rules) {
     }
   });
 }
-document.getElementById('nationality').addEventListener('change', e=>{
-  const country=e.target.value;
-  const required=visaRules[country]===true;
-  const box=document.getElementById('visaBox');
-  box.style.display=required?'block':'none';
-  document.getElementById('visaRequiredNote').style.display=required?'block':'none';
-  document.getElementById('visa').required=required;
-  if(!required) document.getElementById('visa').value='';
+document.getElementById('nationality').addEventListener('change', function(e) {
+
+  const country = e.target.value.toUpperCase().trim();
+
+  const required = visaRules[country] === true;
+
+  const box = document.getElementById('visaBox');
+
+  box.style.display = required ? 'block' : 'none';
+
+  document.getElementById('visaRequiredNote').style.display =
+    required ? 'block' : 'none';
+
+  document.getElementById('visa').required = required;
+
+  if (!required) {
+    document.getElementById('visa').value = '';
+  }
 });
 
 document.getElementById('form').addEventListener('submit', e=>{
