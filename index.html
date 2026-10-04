@@ -164,36 +164,178 @@ document.getElementById('clear').onclick=()=>{
 function loadVisaRules() {
 
   google.script.run
-    .withSuccessHandler(function(rules) {
+    .withSuccessHandler(function(rules){
 
       visaRules = {};
 
-      Object.keys(rules).forEach(function(country) {
+      Object.keys(rules).forEach(function(country){
+
         visaRules[country.toUpperCase()] = true;
+
       });
 
-      fillCountries(rules);
+      fillCountries();
 
     })
     .getVisaRules();
 }
 
-function fillCountries(rules) {
-  const sel = document.getElementById('nationality');
-  const countries = Object.keys(rules).filter(x => x.length > 2 && !/^[A-Z]{2}$/.test(x)).sort();
-  countries.forEach(c => {
-    const o=document.createElement('option'); o.value=c; o.textContent=c; sel.appendChild(o);
-  });
-  // Add common visa-free countries to make the demo usable.
-  [
-    'Czech Republic','Germany','France','Italy','Spain','Austria','Poland',
-    'Netherlands','Belgium','Switzerland','United Kingdom','United States',
-    'Canada','Australia','New Zealand','Japan','South Korea','Ukraine',
-    'Georgia','Moldova','Serbia','Albania','Montenegro','Bosnia and Herzegovina'
-  ].forEach(c=>{
-    if(!Array.from(sel.options).some(o=>o.value===c)){
-      const o=document.createElement('option'); o.value=c; o.textContent=c; sel.appendChild(o);
-    }
+function fillCountries() {
+
+  const countries = [
+    "Afghanistan",
+    "Albania",
+    "Algeria",
+    "Andorra",
+    "Angola",
+    "Argentina",
+    "Armenia",
+    "Australia",
+    "Austria",
+    "Azerbaijan",
+    "Bahrain",
+    "Bangladesh",
+    "Belarus",
+    "Belgium",
+    "Belize",
+    "Benin",
+    "Bhutan",
+    "Bolivia",
+    "Bosnia and Herzegovina",
+    "Botswana",
+    "Brazil",
+    "Bulgaria",
+    "Burkina Faso",
+    "Burundi",
+    "Cambodia",
+    "Cameroon",
+    "Canada",
+    "Cape Verde",
+    "Central African Republic",
+    "Chad",
+    "China",
+    "Colombia",
+    "Comoros",
+    "Congo",
+    "Costa Rica",
+    "Croatia",
+    "Cuba",
+    "Cyprus",
+    "Czech Republic",
+    "Denmark",
+    "Dominican Republic",
+    "Ecuador",
+    "Egypt",
+    "Estonia",
+    "Ethiopia",
+    "Finland",
+    "France",
+    "Germany",
+    "Ghana",
+    "Greece",
+    "Hungary",
+    "Iceland",
+    "India",
+    "Indonesia",
+    "Iran",
+    "Iraq",
+    "Ireland",
+    "Israel",
+    "Italy",
+    "Jamaica",
+    "Japan",
+    "Jordan",
+    "Kazakhstan",
+    "Kenya",
+    "Kuwait",
+    "Kyrgyzstan",
+    "Laos",
+    "Latvia",
+    "Lebanon",
+    "Lesotho",
+    "Liberia",
+    "Libya",
+    "Lithuania",
+    "Luxembourg",
+    "Madagascar",
+    "Malawi",
+    "Malaysia",
+    "Maldives",
+    "Mali",
+    "Malta",
+    "Mauritania",
+    "Mexico",
+    "Moldova",
+    "Mongolia",
+    "Montenegro",
+    "Morocco",
+    "Mozambique",
+    "Myanmar",
+    "Namibia",
+    "Nepal",
+    "Netherlands",
+    "New Zealand",
+    "Niger",
+    "Nigeria",
+    "North Korea",
+    "Norway",
+    "Oman",
+    "Pakistan",
+    "Papua New Guinea",
+    "Philippines",
+    "Poland",
+    "Portugal",
+    "Qatar",
+    "Romania",
+    "Russia",
+    "Rwanda",
+    "Saudi Arabia",
+    "Senegal",
+    "Serbia",
+    "Singapore",
+    "Slovakia",
+    "Slovenia",
+    "Somalia",
+    "South Africa",
+    "South Korea",
+    "Spain",
+    "Sri Lanka",
+    "Sudan",
+    "Sweden",
+    "Switzerland",
+    "Syria",
+    "Tajikistan",
+    "Tanzania",
+    "Thailand",
+    "Tunisia",
+    "Turkey",
+    "Turkmenistan",
+    "Uganda",
+    "Ukraine",
+    "United Arab Emirates",
+    "United Kingdom",
+    "United States",
+    "Uzbekistan",
+    "Vietnam",
+    "Yemen",
+    "Zambia",
+    "Zimbabwe"
+  ];
+
+  const sel = document.getElementById("nationality");
+
+  sel.innerHTML =
+    '<option value="">Select nationality</option>';
+
+  countries.sort().forEach(country => {
+
+    const option = document.createElement("option");
+
+    option.value = country;
+    option.textContent = country;
+
+    sel.appendChild(option);
+
   });
 }
 document.getElementById('nationality').addEventListener('change', function(e) {
@@ -251,9 +393,17 @@ document.getElementById('form').addEventListener('submit', e=>{
 function showSuccess(msg){ const s=document.getElementById('status'); s.textContent=msg; s.className='status success'; }
 function showError(msg){ const s=document.getElementById('status'); s.textContent=msg; s.className='status error'; }
 
-window.addEventListener('resize',resizeCanvas);
+window.addEventListener('resize', resizeCanvas);
+
 setupDates();
-setTimeout(()=>{resizeCanvas(); loadVisaRules();},200);
+
+setTimeout(function () {
+
+  resizeCanvas();
+
+  loadVisaRules();
+
+}, 200);
 </script>
 </body>
 </html>
