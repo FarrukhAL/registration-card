@@ -1,0 +1,243 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <style>
+    :root { --accent:#1f5eff; --border:#d9dee8; --text:#18202a; --muted:#667085; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:#f4f6f8; font-family:Arial,sans-serif; color:var(--text); }
+    .wrap { max-width:620px; margin:0 auto; padding:18px 14px 40px; }
+    .card { background:white; border-radius:18px; padding:22px; box-shadow:0 3px 18px rgba(0,0,0,.07); }
+    h1 { font-size:25px; margin:0 0 5px; }
+    .demo { color:#b54708; background:#fff4e5; padding:9px 11px; border-radius:10px; font-size:13px; margin:12px 0 20px; }
+    label { display:block; font-weight:600; margin:16px 0 7px; }
+    .hint { font-size:12px; color:var(--muted); margin-top:5px; }
+    input, select { width:100%; padding:13px 12px; border:1px solid var(--border); border-radius:10px; font-size:16px; background:#fff; }
+    input:focus,select:focus { outline:2px solid rgba(31,94,255,.15); border-color:var(--accent); }
+    .row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    .optional { font-weight:400; color:var(--muted); }
+    #visaBox { display:none; }
+    #visaRequiredNote { display:none; color:#b42318; font-size:13px; margin-top:6px; }
+    .sigbox { border:1px dashed #98a2b3; border-radius:12px; overflow:hidden; background:#fafafa; touch-action:none; }
+    canvas { display:block; width:100%; height:180px; touch-action:none; }
+    .sigtools { display:flex; justify-content:space-between; align-items:center; padding:8px 10px; border-top:1px solid var(--border); }
+    button { border:0; border-radius:10px; padding:12px 16px; font-size:15px; cursor:pointer; }
+    .clear { background:#eef1f5; }
+    .submit { width:100%; margin-top:20px; background:var(--accent); color:white; font-weight:700; font-size:17px; }
+    .submit:disabled { opacity:.55; }
+    .consent { display:flex; gap:10px; align-items:flex-start; margin-top:20px; font-size:14px; }
+    .consent input { width:20px; height:20px; margin-top:1px; flex:0 0 auto; }
+    .status { margin-top:15px; padding:12px; border-radius:10px; display:none; }
+    .success { display:block; background:#ecfdf3; color:#027a48; }
+    .error { display:block; background:#fef3f2; color:#b42318; }
+    .required { color:#b42318; }
+    @media(max-width:500px){ .row{grid-template-columns:1fr;} .card{padding:18px;} }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <div class="card">
+    <h1>Guest Registration</h1>
+    <div class="demo">DEMO VERSION — no hotel branding or real guest data.</div>
+
+    <form id="form">
+      <div class="row">
+        <div>
+          <label>First name <span class="required">*</span></label>
+          <input id="firstName" autocomplete="given-name" required>
+        </div>
+        <div>
+          <label>Surname <span class="required">*</span></label>
+          <input id="surname" autocomplete="family-name" required>
+        </div>
+      </div>
+
+      <div class="row">
+        <div>
+          <label>Date of birth <span class="required">*</span></label>
+          <input id="dob" type="date" required>
+        </div>
+        <div>
+          <label>Nationality <span class="required">*</span></label>
+          <select id="nationality" required>
+            <option value="">Select nationality</option>
+          </select>
+        </div>
+      </div>
+
+      <label>Residence address <span class="required">*</span></label>
+      <input id="address" autocomplete="street-address" required>
+
+      <label>ID / Passport number <span class="required">*</span></label>
+      <input id="passport" autocomplete="off" required>
+
+      <label>Car registration number <span class="optional">(optional)</span></label>
+      <input id="car" autocomplete="off">
+
+      <div id="visaBox">
+        <label>Visa number <span class="required">*</span></label>
+        <input id="visa" autocomplete="off">
+        <div id="visaRequiredNote">Based on the selected nationality, a visa is required under the demo visa-rule list.</div>
+      </div>
+
+      <div class="row">
+        <div>
+          <label>Arrival date</label>
+          <input id="arrival" type="date" readonly>
+          <div class="hint">Automatically set to today.</div>
+        </div>
+        <div>
+          <label>Check-out date <span class="required">*</span></label>
+          <input id="checkout" type="date" required>
+        </div>
+      </div>
+
+      <label>Signature <span class="required">*</span></label>
+      <div class="sigbox">
+        <canvas id="signature"></canvas>
+        <div class="sigtools">
+          <span class="hint">Sign with your finger</span>
+          <button type="button" class="clear" id="clear">Clear</button>
+        </div>
+      </div>
+
+      <div class="consent">
+        <input id="gdpr" type="checkbox" required>
+        <div>I confirm that I have read the hotel's privacy information and acknowledge the processing of my personal data for the purposes described there. <span class="required">*</span></div>
+      </div>
+
+      <button class="submit" id="submit" type="submit">Submit registration</button>
+      <div id="status" class="status"></div>
+    </form>
+  </div>
+</div>
+
+<script>
+let visaRules = {};
+let drawing = false;
+let hasSignature = false;
+const canvas = document.getElementById('signature');
+const ctx = canvas.getContext('2d');
+
+function todayISO() {
+  const d = new Date();
+  const offset = d.getTimezoneOffset();
+  return new Date(d.getTime() - offset*60000).toISOString().slice(0,10);
+}
+function setupDates() {
+  const today = todayISO();
+  document.getElementById('arrival').value = today;
+  document.getElementById('checkout').min = today;
+}
+function resizeCanvas() {
+  const ratio = Math.max(window.devicePixelRatio || 1, 1);
+  const rect = canvas.getBoundingClientRect();
+  const old = canvas.toDataURL();
+  canvas.width = rect.width * ratio;
+  canvas.height = rect.height * ratio;
+  ctx.setTransform(ratio,0,0,ratio,0,0);
+  ctx.lineWidth = 2.2; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  if (hasSignature) {
+    const img = new Image();
+    img.onload = () => ctx.drawImage(img,0,0,rect.width,rect.height);
+    img.src = old;
+  }
+}
+function point(e) {
+  const r = canvas.getBoundingClientRect();
+  const p = e.touches ? e.touches[0] : e;
+  return {x:p.clientX-r.left, y:p.clientY-r.top};
+}
+function start(e){ e.preventDefault(); drawing=true; const p=point(e); ctx.beginPath(); ctx.moveTo(p.x,p.y); }
+function move(e){ if(!drawing)return; e.preventDefault(); const p=point(e); ctx.lineTo(p.x,p.y); ctx.stroke(); hasSignature=true; }
+function end(){ drawing=false; }
+
+canvas.addEventListener('pointerdown',start);
+canvas.addEventListener('pointermove',move);
+canvas.addEventListener('pointerup',end);
+canvas.addEventListener('pointercancel',end);
+document.getElementById('clear').onclick=()=>{
+  ctx.clearRect(0,0,canvas.width,canvas.height); hasSignature=false;
+};
+
+function loadVisaRules() {
+  google.script.run.withSuccessHandler(rules => {
+    visaRules = rules || {};
+    google.script.run.withSuccessHandler(fillCountries).getVisaRules();
+  }).getVisaRules();
+}
+function fillCountries(rules) {
+  const sel = document.getElementById('nationality');
+  const countries = Object.keys(rules).filter(x => x.length > 2 && !/^[A-Z]{2}$/.test(x)).sort();
+  countries.forEach(c => {
+    const o=document.createElement('option'); o.value=c; o.textContent=c; sel.appendChild(o);
+  });
+  // Add common visa-free countries to make the demo usable.
+  [
+    'Czech Republic','Germany','France','Italy','Spain','Austria','Poland',
+    'Netherlands','Belgium','Switzerland','United Kingdom','United States',
+    'Canada','Australia','New Zealand','Japan','South Korea','Ukraine',
+    'Georgia','Moldova','Serbia','Albania','Montenegro','Bosnia and Herzegovina'
+  ].forEach(c=>{
+    if(!Array.from(sel.options).some(o=>o.value===c)){
+      const o=document.createElement('option'); o.value=c; o.textContent=c; sel.appendChild(o);
+    }
+  });
+}
+document.getElementById('nationality').addEventListener('change', e=>{
+  const country=e.target.value;
+  const required=visaRules[country]===true;
+  const box=document.getElementById('visaBox');
+  box.style.display=required?'block':'none';
+  document.getElementById('visaRequiredNote').style.display=required?'block':'none';
+  document.getElementById('visa').required=required;
+  if(!required) document.getElementById('visa').value='';
+});
+
+document.getElementById('form').addEventListener('submit', e=>{
+  e.preventDefault();
+  const status=document.getElementById('status');
+  status.className='status'; status.style.display='none';
+
+  if(!hasSignature){ showError('Please provide your signature.'); return; }
+  const checkout=document.getElementById('checkout').value;
+  if(checkout < document.getElementById('arrival').value){ showError('Check-out date cannot be before arrival.'); return; }
+
+  document.getElementById('submit').disabled=true;
+  const data={
+    firstName:document.getElementById('firstName').value.trim(),
+    surname:document.getElementById('surname').value.trim(),
+    dateOfBirth:document.getElementById('dob').value,
+    nationality:document.getElementById('nationality').value,
+    address:document.getElementById('address').value.trim(),
+    passportNumber:document.getElementById('passport').value.trim(),
+    carRegistration:document.getElementById('car').value.trim(),
+    visaNumber:document.getElementById('visa').value.trim(),
+    arrivalDate:document.getElementById('arrival').value,
+    checkoutDate:checkout,
+    signatureDataUrl:canvas.toDataURL('image/png'),
+    gdpr:document.getElementById('gdpr').checked
+  };
+  google.script.run.withSuccessHandler(res=>{
+    showSuccess('Registration submitted successfully. Thank you.');
+    document.getElementById('form').reset();
+    setupDates();
+    ctx.clearRect(0,0,canvas.width,canvas.height); hasSignature=false;
+    document.getElementById('visaBox').style.display='none';
+    document.getElementById('submit').disabled=false;
+  }).withFailureHandler(err=>{
+    showError(err.message || 'Something went wrong.');
+    document.getElementById('submit').disabled=false;
+  }).saveRegistration(data);
+});
+function showSuccess(msg){ const s=document.getElementById('status'); s.textContent=msg; s.className='status success'; }
+function showError(msg){ const s=document.getElementById('status'); s.textContent=msg; s.className='status error'; }
+
+window.addEventListener('resize',resizeCanvas);
+setupDates();
+setTimeout(()=>{resizeCanvas(); loadVisaRules();},200);
+</script>
+</body>
+</html>
