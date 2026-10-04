@@ -68,18 +68,121 @@ function getOrCreateFolder_(name) {
 }
 
 function getVisaRules() {
-  const ss = getOrCreateSpreadsheet_();
-  const sheet = ss.getSheetByName(CONFIG.visaRulesSheet);
-  if (!sheet || sheet.getLastRow() < 2) return {};
-  const values = sheet.getRange(2, 1, sheet.getLastRow() - 1, 3).getValues();
+
+  const visaCountries = [
+    'AFGHANISTAN',
+    'ALGERIA',
+    'ANGOLA',
+    'ARMENIA',
+    'AZERBAIJAN',
+    'BAHRAIN',
+    'BANGLADESH',
+    'BELARUS',
+    'BELIZE',
+    'BENIN',
+    'BHUTAN',
+    'BOLIVIA',
+    'BOTSWANA',
+    'BURKINA FASO',
+    'BURMA/MYANMAR',
+    'BURUNDI',
+    'CAMBODIA',
+    'CAMEROON',
+    'CAPE VERDE',
+    'CENTRAL AFRICAN REPUBLIC',
+    'CHAD',
+    'CHINA',
+    'COMOROS',
+    'CONGO',
+    "COTE D'IVOIRE",
+    'CUBA',
+    'DEMOCRATIC REPUBLIC OF CONGO',
+    'DJIBOUTI',
+    'DOMINICAN REPUBLIC',
+    'ECUADOR',
+    'EGYPT',
+    'EQUATORIAL GUINEA',
+    'ERITREA',
+    'ETHIOPIA',
+    'FIJI',
+    'GABON',
+    'GAMBIA',
+    'GHANA',
+    'GUINEA',
+    'GUINEA-BISSAU',
+    'GUYANA',
+    'HAITI',
+    'INDIA',
+    'INDONESIA',
+    'IRAN',
+    'IRAQ',
+    'JAMAICA',
+    'JORDAN',
+    'KAZAKHSTAN',
+    'KENYA',
+    'KUWAIT',
+    'KYRGYZSTAN',
+    'LAOS',
+    'LEBANON',
+    'LESOTHO',
+    'LIBERIA',
+    'LIBYA',
+    'MADAGASCAR',
+    'MALAWI',
+    'MALDIVES',
+    'MALI',
+    'MAURITANIA',
+    'MONGOLIA',
+    'MOROCCO',
+    'MOZAMBIQUE',
+    'NAMIBIA',
+    'NAURU',
+    'NEPAL',
+    'NIGER',
+    'NIGERIA',
+    'NORTH KOREA',
+    'OMAN',
+    'PAKISTAN',
+    'PAPUA NEW GUINEA',
+    'PHILIPPINES',
+    'QATAR',
+    'RUSSIA',
+    'RWANDA',
+    'SAO TOME AND PRINCIPE',
+    'SAUDI ARABIA',
+    'SENEGAL',
+    'SIERRA LEONE',
+    'SOMALIA',
+    'SOUTH AFRICA',
+    'SOUTH SUDAN',
+    'SRI LANKA',
+    'SUDAN',
+    'SURINAME',
+    'SWAZILAND',
+    'SYRIA',
+    'TAJIKISTAN',
+    'TANZANIA',
+    'THAILAND',
+    'TOGO',
+    'TUNISIA',
+    'TURKEY',
+    'TURKMENISTAN',
+    'UGANDA',
+    'UZBEKISTAN',
+    'VIETNAM',
+    'YEMEN',
+    'ZAMBIA',
+    'ZIMBABWE',
+    'KOSOVO',
+    'PALESTINIAN AUTHORITY'
+  ];
+
   const rules = {};
-  values.forEach(r => {
-    const country = String(r[0] || '').trim();
-    const code = String(r[1] || '').trim().toUpperCase();
-    const required = String(r[2] || '').trim().toUpperCase() === 'YES';
-    if (country) rules[country] = required;
-    if (code) rules[code] = required;
+
+  visaCountries.forEach(country => {
+    rules[country] = true;
   });
+
   return rules;
 }
 
@@ -131,6 +234,16 @@ function validate_(d) {
   });
   if (!d.gdpr) throw new Error('Please confirm the privacy acknowledgement.');
   if (!d.signatureDataUrl) throw new Error('Please provide your signature.');
+const visaRules = getVisaRules();
+
+if (
+  visaRules[String(d.nationality).toUpperCase()] &&
+  (!d.visaNumber || d.visaNumber.trim() === '')
+) {
+  throw new Error(
+    'Visa number is required for the selected nationality.'
+  );
+}
   if (d.checkoutDate < d.arrivalDate) throw new Error('Check-out date cannot be before arrival date.');
 }
 
