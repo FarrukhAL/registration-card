@@ -244,6 +244,16 @@ if (
     'Visa number is required for the selected nationality.'
   );
 }
+const visaRules = getVisaRules();
+
+if (
+  visaRules[String(d.nationality).toUpperCase()] &&
+  (!d.visaNumber || d.visaNumber.trim() === '')
+) {
+  throw new Error(
+    'Visa number is required for the selected nationality.'
+  );
+}
   if (d.checkoutDate < d.arrivalDate) throw new Error('Check-out date cannot be before arrival date.');
 }
 
