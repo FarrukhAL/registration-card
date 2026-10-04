@@ -8,7 +8,7 @@ const CONFIG = {
 };
 
 function doGet() {
-  return HtmlService.createTemplateFromFile('Index')
+  return HtmlService.createTemplateFromFile('index')
     .evaluate()
     .setTitle('Guest Registration')
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
