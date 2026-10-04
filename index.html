@@ -202,19 +202,15 @@ document.getElementById('nationality').addEventListener('change', function(e) {
 
   const required = visaRules[country] === true;
 
-  const box = document.getElementById('visaBox');
-
-  box.style.display = required ? 'block' : 'none';
+  document.getElementById('visaBox').style.display =
+    required ? 'block' : 'none';
 
   document.getElementById('visaRequiredNote').style.display =
     required ? 'block' : 'none';
 
   document.getElementById('visa').required = required;
 
-  if (!required) {
-    document.getElementById('visa').value = '';
-  }
-});
+  if (!required
 
 document.getElementById('form').addEventListener('submit', e=>{
   e.preventDefault();
